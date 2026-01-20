@@ -1,7 +1,32 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const handleContinue = () => {
+    const phoneRegex = /^\d{10}$/;
+    const nameRegex = /^[A-Za-z ]+$/;
+
+    if (!name || !nameRegex.test(name)) {
+      alert("Name must contain only alphabets");
+      return;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      alert("Phone number must be exactly 10 digits");
+      return;
+    }
+
+    // store for backend mock auth & later payment flows
+    localStorage.setItem("phone", phone);
+    localStorage.setItem("name", name);
+
+    navigate("/scan");
+  };
 
   return (
     <div className="page">
@@ -18,12 +43,20 @@ function LoginPage() {
 
           <div className="form-group">
             <span className="icon">👤</span>
-            <input placeholder="Enter your name" />
+            <input
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
 
           <div className="form-group">
             <span className="icon">📞</span>
-            <input placeholder="Enter your phone number" />
+            <input
+              placeholder="Enter your phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
           </div>
 
           <div className="form-group">
@@ -35,7 +68,7 @@ function LoginPage() {
             </select>
           </div>
 
-          <button onClick={() => navigate("/scan")}>
+          <button onClick={handleContinue}>
             Continue
           </button>
         </div>
@@ -55,8 +88,6 @@ function LoginPage() {
           <button onClick={() => navigate("/manager-dashboard")}>
             Verify Access →
           </button>
-
-    
         </div>
 
       </div>

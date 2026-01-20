@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE = "http://localhost:3000";
+
 function ScanQRPage() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -10,21 +12,54 @@ function ScanQRPage() {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState("");
 
-  const goNext = () => {
+  // 🔹 core logic after QR is "scanned"
+  const handleScanResult = async (groupCode) => {
+    try {
+      const res = await fetch(`${API_BASE}/bill/${groupCode}`, {
+        headers: {
+          "x-phone": localStorage.getItem("phone") // from login
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Invalid or expired QR");
+      }
+
+      const data = await res.json();
+
+      navigate("/preview", {
+        state: {
+          groupCode,
+          totalAmount: data.total,
+          splitAmount: data.splitAmount,
+          participants: data.participants
+        }
+      });
+    } catch (err) {
+      setError(err.message || "Failed to scan QR");
+      setScanning(false);
+    }
+  };
+
+  // 🔸 simulate scan (demo button)
+  const demoScan = () => {
+    setScanning(true);
+
+    // 🔥 use a REAL groupCode from DB while testing
+    const demoGroupCode = "7e6d2993-0241-446d-928a-addd57307cd5";
+
     setTimeout(() => {
-      navigate("/next-page"); // 🔁 SAME PAGE FOR BOTH
-    }, 3500);
+      handleScanResult(demoGroupCode);
+    }, 4000);
   };
 
   const startCamera = () => {
     setCameraOn(true);
     setScanning(true);
-    goNext();
-  };
 
-  const demoScan = () => {
-    setScanning(true);
-    goNext();
+    // ⚠️ real QR decoding can be added later
+    // for now simulate success
+    demoScan();
   };
 
   useEffect(() => {
@@ -43,8 +78,8 @@ function ScanQRPage() {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
-      } catch (err) {
-        setError("Unable to access camera.");
+      } catch {
+        setError("Unable to access camera");
         setCameraOn(false);
       }
     };
@@ -66,7 +101,7 @@ function ScanQRPage() {
 
         <h2 className="qr-title">Scan Table QR</h2>
         <p className="subtitle">
-          Scan the QR code on your table to get started
+          Scan the QR code on your table to continue
         </p>
 
         <div className="qr-box">
@@ -81,7 +116,6 @@ function ScanQRPage() {
             <div className="camera-icon">📷</div>
           )}
 
-          {/* 🔥 SCAN LINE */}
           {scanning && <div className="scan-line" />}
         </div>
 

@@ -1,12 +1,54 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import api from "./api"; // adjust path if needed
 
 function ConfirmPaymentPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // fallback values if page opened directly
-  const amount = state?.amount || 225;
-  const userId = state?.userId || "U29";
+  // safety guard
+  if (!state) {
+    return <p>Invalid access</p>;
+  }
+
+  const { billId, groupCode, amount } = state;
+  const payerName = localStorage.getItem("name") || "Guest";
+
+  const handlePayNow = async () => {
+    try {
+      await api.post(
+        "/payment/confirm",
+        {
+          billId,
+          groupCode,
+          payerName
+        },
+        {
+          headers: {
+            "idempotency-key": crypto.randomUUID()
+          }
+        }
+      );
+
+      navigate("/payment-success", {
+        state: { amount }
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Payment failed or already processed");
+    }
+  };
+
+  const handleNotNow = async () => {
+    try {
+      await api.post("/payment/decline");
+      navigate("/payment-pending", {
+        state: { amount }
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update payment status");
+    }
+  };
 
   return (
     <div className="page">
@@ -26,26 +68,13 @@ function ConfirmPaymentPage() {
           </div>
         </div>
 
-        {/* PAY NOW → SUCCESS PAGE */}
-        <button
-          onClick={() =>
-            navigate("/payment-success", {
-              state: { amount, userId },
-            })
-          }
-        >
+        {/* PAY NOW */}
+        <button onClick={handlePayNow}>
           ✔ Pay Now
         </button>
 
-        {/* NOT NOW → PENDING PAGE */}
-        <button
-          className="secondary"
-          onClick={() =>
-            navigate("/payment-pending", {
-              state: { amount, userId },
-            })
-          }
-        >
+        {/* NOT NOW */}
+        <button className="secondary" onClick={handleNotNow}>
           ✕ Not Now
         </button>
 

@@ -1,11 +1,19 @@
-const BASE_URL = "https://YOUR-GITLAB-BACKEND-URL";
+import axios from "axios";
 
-export async function login(phone) {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone })
-  });
+const api = axios.create({
+  baseURL: "http://localhost:3000/api",
+  headers: {
+    "Content-Type": "application/json"
+  }
+});
 
-  return res.json();
-}
+// attach mock auth header
+api.interceptors.request.use((config) => {
+  const phone = localStorage.getItem("phone");
+  if (phone) {
+    config.headers["x-phone"] = phone;
+  }
+  return config;
+});
+
+export default api;

@@ -9,7 +9,7 @@ import PaymentPendingPage from "./PaymentPendingPage";
 import PaymentSuccessPage from "./PaymentSuccessPage";
 import GroupStatusPage from "./GroupStatusPage";
 import RestaurantDashboard from "./RestaurantDashboard";
-
+import RestaurantViewPage from "./RestaurantViewPage";
 function App() {
   return (
     <Routes>

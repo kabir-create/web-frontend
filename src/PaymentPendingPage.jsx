@@ -4,8 +4,11 @@ function PaymentPendingPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const amount = state?.amount || 225;
-  const userId = state?.userId || "U29";
+  if (!state) {
+    return <p>Invalid access</p>;
+  }
+
+  const { amount, groupCode } = state;
 
   return (
     <div className="page">
@@ -15,7 +18,7 @@ function PaymentPendingPage() {
 
         <h2 className="qr-title">Payment Pending</h2>
         <p className="subtitle">
-          You can pay anytime before the bill closes.
+          You can complete your payment anytime before the bill closes.
         </p>
 
         <div className="info" style={{ color: "#ff5c5c", fontWeight: 700 }}>
@@ -24,19 +27,14 @@ function PaymentPendingPage() {
 
         <div className="bill-box">
           <div className="row">
-            <span>Amount</span>
+            <span>Amount Due</span>
             <span>₹{amount}</span>
-          </div>
-
-          <div className="row">
-            <span>User ID</span>
-            <span>{userId}</span>
           </div>
         </div>
 
-        <button onClick={() => navigate("/group-status")}>
-  View Group Status →
-</button>
+        <button onClick={() => navigate(`/group/${groupCode}`)}>
+          View Group Status →
+        </button>
 
       </div>
     </div>

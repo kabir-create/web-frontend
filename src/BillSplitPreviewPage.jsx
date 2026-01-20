@@ -4,11 +4,21 @@ function BillSplitPreviewPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
+  // safety guard
+  if (!state) {
+    return <p>Invalid access</p>;
+  }
+
   const {
-    totalBill = 900,
-    people = 4,
-    perPerson = 225,
-  } = state || {};
+    billId,
+    groupCode,
+    splitAmount,
+    totalBill,
+    people,
+    qr
+  } = state;
+
+  const userName = localStorage.getItem("name") || "Guest";
 
   return (
     <div className="page">
@@ -19,6 +29,7 @@ function BillSplitPreviewPage() {
         <h2 className="qr-title">Bill Split Preview</h2>
         <p className="subtitle">Review your share before payment</p>
 
+        {/* BILL DETAILS */}
         <div className="bill-box">
           <div className="row">
             <span>Total Bill</span>
@@ -32,29 +43,43 @@ function BillSplitPreviewPage() {
 
           <div className="row bold">
             <span>Your Share</span>
-            <span>₹{perPerson}</span>
+            <span>₹{splitAmount}</span>
           </div>
         </div>
 
         <div className="info">Equal split only</div>
 
+        {/* USER INFO */}
         <div className="bill-box">
           <div className="row">
             <span>You're paying as</span>
-            <span>fdfjkfdkj</span>
+            <span>{userName}</span>
           </div>
 
           <div className="row">
-            <span>User ID</span>
-            <span>U13</span>
+            <span>Group Code</span>
+            <span>{groupCode}</span>
           </div>
         </div>
 
-        {/* UPDATED BUTTON */}
+        {/* QR DISPLAY (NEW but minimal) */}
+        <div style={{ margin: "20px 0", textAlign: "center" }}>
+          <img
+            src={qr}
+            alt="QR Code"
+            style={{ width: "180px", height: "180px" }}
+          />
+        </div>
+
+        {/* CONTINUE */}
         <button
           onClick={() =>
             navigate("/payment", {
-              state: { amount: perPerson },
+              state: {
+                billId,
+                groupCode,
+                amount: splitAmount
+              }
             })
           }
         >
