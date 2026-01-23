@@ -12,6 +12,7 @@ function ConfirmPaymentPage() {
 
   const { billId, groupCode, amount } = state;
   const payerName = localStorage.getItem("name") || "Guest";
+  const payerPhone = localStorage.getItem("phone") || "Unknown";
 
   const handlePayNow = async () => {
     try {
@@ -20,7 +21,8 @@ function ConfirmPaymentPage() {
         {
           billId,
           groupCode,
-          payerName
+          payerName,
+          payerPhone,
         },
         {
           headers: {
@@ -28,7 +30,7 @@ function ConfirmPaymentPage() {
           }
         }
       );
-
+   console.log(groupCode, payerName, amount);
       navigate("/payment-success", {
         state: { amount }
       });
